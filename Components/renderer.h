@@ -10,8 +10,9 @@ public:
 
     void clear();
     void present();
-    void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-    void fillRect(int x, int y, int w, int h);
+
+    bool setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+    bool fillRect(int x, int y, int w, int h);
 
 private:
     SDL_Renderer* renderer;

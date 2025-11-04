@@ -1,7 +1,7 @@
 #include "Layout.h"
 
 Layout::Layout() {
-    currentWidget = 0;
+    currentWidget = nullptr;
 }
 
 void Layout::setWidget(Widget* widget) {

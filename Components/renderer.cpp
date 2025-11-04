@@ -13,19 +13,19 @@ Renderer::~Renderer() {
 }
 
 void Renderer::clear() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    if (!SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255))
+        SDL_RenderClear(renderer);
 }
 
 void Renderer::present() {
     SDL_RenderPresent(renderer);
 }
 
-void Renderer::setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+bool Renderer::setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+    return SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
 
-void Renderer::fillRect(int x, int y, int w, int h) {
+bool Renderer::fillRect(int x, int y, int w, int h) {
     SDL_FRect rect = { (float)x, (float)y, (float)w, (float)h };
-    SDL_RenderFillRect(renderer, &rect);
+    return SDL_RenderFillRect(renderer, &rect);
 }

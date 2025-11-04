@@ -1,45 +1,45 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 #include "Renderer.h"
-#include "Layout.h"
 #include "Widget.h"
 
-int main(int argc, char** argv) {
+void onButtonClick() {
+    std::cout << "Widget clicked!\n";
+}
+
+int main() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::cerr << "SDL Init Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL Init failed: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Widget Layout Example", 800, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("SDL3 Widget Click", 800, 600, SDL_WINDOW_RESIZABLE);
     if (!window) {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
-        SDL_Quit();
         return 1;
     }
 
     Renderer renderer(window);
-    Layout layout;
-    Widget widget;
 
-    widget.setPosition(200, 150);
-    widget.setSize(150, 150);
-    layout.setWidget(&widget);
+    Widget widget;
+    widget.setPosition(300, 250);
+    widget.setSize(200, 100);
+    widget.setOnClick(onButtonClick);
 
     bool running = true;
-    SDL_Event event;
+    SDL_Event e;
 
     while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                running = false;
-            }
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_EVENT_QUIT) running = false;
+            widget.handleEvent(e);
         }
 
         renderer.clear();
-        layout.draw(renderer);
+        widget.draw(renderer);
         renderer.present();
 
-        SDL_Delay(16); // ~60 FPS
+        SDL_Delay(16); // ~60fps
     }
 
     SDL_DestroyWindow(window);
