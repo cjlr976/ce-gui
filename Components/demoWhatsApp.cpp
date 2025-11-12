@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
         // Smaller "contact" rectangles inside left panel
         int nContacts = 10;
         float contactW = leftPanel.w * 0.9f;
-        float contactH = leftPanel.h * 0.05f;
+        float contactH = leftPanel.h * 0.08f;
         float spacing = (leftPanel.h - nContacts * contactH) / (nContacts + 1);
 
         for (int i = 0; i < nContacts; ++i) {
