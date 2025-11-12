@@ -1,38 +1,24 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
-#include "renderer.h"
-#include "widget.h"
-#include "button.h"
-#include "label.h"
-#include "slider.h"
-#include "toggle.h"
-#include "textbox.h"
+#include "layout.h"
 
-// Global pointer for input box so the button callback can access it
-TextBox* g_inputBox = nullptr;
-
-// Button callback
-void sendMessage() {
-    std::cout << "Sending message: " << std::endl;
-    if (g_inputBox) g_inputBox->clear();
-}
+int windowWidth = 800;
+int windowHeight = 600;
 
 int main(int argc, char** argv) {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL Init failed: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    if (TTF_Init() != 0) {
+    if (!TTF_Init()) {
         std::cerr << "TTF Init failed: " << SDL_GetError() << std::endl;
         SDL_Quit();
         return 1;
     }
 
-    int windowWidth = 800;
-    int windowHeight = 600;
-    SDL_Window* window = SDL_CreateWindow("WhatsApp Clone Demo", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Chat UI Demo", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
     if (!window) {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
         TTF_Quit();
@@ -42,95 +28,102 @@ int main(int argc, char** argv) {
 
     Renderer renderer(window);
 
-    // Load font
     TTF_Font* font = TTF_OpenFont("Roboto_SemiCondensed-Black.ttf", 20);
-    if (!font) {
-        std::cerr << "Failed to load font" << std::endl;
-    }
+    if (!font) std::cerr << "Failed to load font" << std::endl;
 
-    // WhatsApp UI panels
-    SDL_FRect chatsPanel = {0, 0, windowWidth * 0.3f, (float)windowHeight};
-    SDL_FRect chatPanel = {chatsPanel.w, 0, windowWidth - chatsPanel.w, (float)windowHeight};
+    TextBox textbox(&renderer, font);
 
-    // Left panel chat labels
-    Label chat1(&renderer, font, "Alice");
-    chat1.setPosition(10, 50);
-    chat1.setSize(chatsPanel.w - 20, 40);
+    auto computeTextboxPosition = [&]() {
+        SDL_FRect rightPanel = { windowWidth * 0.35f, windowHeight * 0.05f, windowWidth * 0.6f, windowHeight * 0.9f };
 
-    Label chat2(&renderer, font, "Bob");
-    chat2.setPosition(10, 100);
-    chat2.setSize(chatsPanel.w - 20, 40);
+        int tbW = static_cast<int>(rightPanel.w * 0.9f);   // width relative to right panel
+        int tbH = static_cast<int>(windowHeight * 0.12f);  // height of textbox
+        int tbX = static_cast<int>(rightPanel.x + (rightPanel.w - tbW) / 2.0f); // centered horizontally
+        int tbY = static_cast<int>(rightPanel.y + rightPanel.h - tbH - 10);     // near bottom with 10px margin
 
-    // Textbox for message input
-    TextBox inputBox(&renderer, font);
-    g_inputBox = &inputBox; // set global pointer for callback
-    inputBox.setPosition(chatPanel.x + 10, windowHeight - 60);
-    inputBox.setSize(chatPanel.w - 80, 50);
+        textbox.setBox(tbX, tbY, tbW, tbH);
+    };
 
-    // Send button
-    Button sendButton(&renderer, font, "Send");
-    sendButton.setPosition(chatPanel.x + chatPanel.w - 60, windowHeight - 60);
-    sendButton.setSize(50, 50);
-    sendButton.setOnClick(sendMessage);
 
-    // Sample chat messages
-    Label message1(&renderer, font, "Alice: Hi there!");
-    message1.setPosition(chatPanel.x + 10, 20);
-    message1.setSize(chatPanel.w - 20, 30);
+    computeTextboxPosition();
+
+    SDL_StartTextInput(window);
 
     bool running = true;
     SDL_Event e;
-    SDL_StartTextInput(window);
+
+    SDL_FRect sideRects[5]; // store rectangles for contacts
 
     while (running) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) running = false;
+
             if (e.type == SDL_EVENT_WINDOW_RESIZED) {
                 windowWidth = e.window.data1;
                 windowHeight = e.window.data2;
-
-                chatsPanel.w = windowWidth * 0.3f;
-                chatPanel.x = chatsPanel.w;
-                chatPanel.w = windowWidth - chatsPanel.w;
-
-                inputBox.setPosition(chatPanel.x + 10, windowHeight - 60);
-                inputBox.setSize(chatPanel.w - 80, 50);
-
-                sendButton.setPosition(chatPanel.x + chatPanel.w - 60, windowHeight - 60);
-                sendButton.setSize(50, 50);
+                computeTextboxPosition();
             }
 
-            // Handle widget events
-            inputBox.handleEvent(e);
-            sendButton.handleEvent(e);
+            textbox.handleEvent(e);
+
+            // Click to clear textbox
+            if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                int mx = e.button.x;
+                int my = e.button.y;
+                for (int i = 0; i < 5; ++i) {
+                    SDL_FRect &r = sideRects[i];
+                    if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+                        textbox.clear();
+                        break;
+                    }
+                }
+            }
         }
 
-        // Render background
-        renderer.setDrawColor(240, 240, 240, 255);
+        // --- Light background ---
+        renderer.setDrawColor(245, 245, 245, 255);
         renderer.clear();
 
         SDL_Renderer* native = renderer.getNativeRenderer();
 
-        // Left panel background
-        renderer.setDrawColor(220, 220, 220, 255);
-        SDL_FRect leftRect = {chatsPanel.x, chatsPanel.y, chatsPanel.w, chatsPanel.h};
-        SDL_RenderFillRect(native, &leftRect);
+        // Big left panel
+        SDL_FRect leftPanel = { windowWidth * 0.05f, windowHeight * 0.05f, windowWidth * 0.25f, windowHeight * 0.9f };
+        renderer.setDrawColor(227, 204, 197, 255); // Beige
+        SDL_RenderFillRect(native, &leftPanel);
+        renderer.setDrawColor(200, 200, 200, 255); // border
+        SDL_RenderRect(native, &leftPanel);
 
-        // Right panel background
-        renderer.setDrawColor(255, 255, 255, 255);
-        SDL_FRect rightRect = {chatPanel.x, chatPanel.y, chatPanel.w, chatPanel.h};
-        SDL_RenderFillRect(native, &rightRect);
+        // Smaller "contact" rectangles inside left panel
+        int nContacts = 10;
+        float contactW = leftPanel.w * 0.9f;
+        float contactH = leftPanel.h * 0.05f;
+        float spacing = (leftPanel.h - nContacts * contactH) / (nContacts + 1);
 
-        // Draw chat labels
-        chat1.draw(renderer);
-        chat2.draw(renderer);
+        for (int i = 0; i < nContacts; ++i) {
+            SDL_FRect contact = {
+                leftPanel.x + leftPanel.w * 0.05f,
+                leftPanel.y + spacing * (i + 1) + contactH * i,
+                contactW,
+                contactH
+            };
+            renderer.setDrawColor(230, 230, 230, 255);
+            SDL_RenderFillRect(native, &contact);
+            renderer.setDrawColor(180, 180, 180, 255);
+            SDL_RenderRect(native, &contact);
 
-        // Draw chat messages
-        message1.draw(renderer);
+            sideRects[i] = contact;
+        }
 
-        // Draw input and send button
-        inputBox.draw(renderer);
-        sendButton.draw(renderer);
+        // Right panel (chat + textbox)
+        SDL_FRect rightPanel = { windowWidth * 0.35f, windowHeight * 0.05f, windowWidth * 0.6f, windowHeight * 0.9f };
+        renderer.setDrawColor(227, 204, 197, 255);
+        SDL_RenderFillRect(native, &rightPanel);
+        renderer.setDrawColor(200, 200, 200, 255);
+        SDL_RenderRect(native, &rightPanel);
+
+        // Draw the textbox at bottom
+        textbox.draw(renderer);
+        
 
         renderer.present();
         SDL_Delay(16);

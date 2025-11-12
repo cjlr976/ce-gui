@@ -1,10 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
-#include "renderer.h"
 #include "layout.h"
-#include "widget.h"
-#include "textbox.h"
 
 int windowWidth = 800;
 int windowHeight = 600;

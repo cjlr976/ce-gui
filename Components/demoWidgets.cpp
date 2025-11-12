@@ -1,12 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
-#include "renderer.h"
-#include "widget.h"
-#include "button.h"
-#include "label.h"
-#include "slider.h"
-#include "toggle.h"
+#include "layout.h"
 
 int main(int argc, char** argv) {
     // --- SDL3 Initialization ---
