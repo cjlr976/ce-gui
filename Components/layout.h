@@ -1,7 +1,13 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
-#include "Widget.h"
+#include "renderer.h"
+#include "widget.h"
+#include "button.h"
+#include "label.h"
+#include "slider.h"
+#include "toggle.h"
+#include "textbox.h"
 
 class Layout : public Widget {
 public:
