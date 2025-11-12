@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Chat UI Demo with Buttons", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Chat UI Demo with Contact Highlights", windowWidth, windowHeight, SDL_WINDOW_RESIZABLE);
     if (!window) {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
         TTF_Quit();
@@ -56,18 +56,14 @@ int main(int argc, char** argv) {
     bool running = true;
     SDL_Event e;
 
-    const int nContacts = 5;
-    SDL_FRect sideRects[nContacts];  // contact rectangles
-    Button contactButtons[nContacts] = {
-        Button(&renderer, font, "Contact 1"),
-        Button(&renderer, font, "Contact 2"),
-        Button(&renderer, font, "Contact 3"),
-        Button(&renderer, font, "Contact 4"),
-        Button(&renderer, font, "Contact 5")
-    };
+    const int nContacts = 10;
+    SDL_FRect contactRects[nContacts];  // contact rectangles
+    SDL_Color contactColors[nContacts]; // current color of each contact
 
-    // Right panel color
-    int panelR = 180, panelG = 180, panelB = 180;
+    // Initialize contact colors
+    for(int i = 0; i < nContacts; ++i) {
+        contactColors[i] = {230, 230, 230, 255};
+    }
 
     while (running) {
         while (SDL_PollEvent(&e)) {
@@ -82,8 +78,19 @@ int main(int argc, char** argv) {
 
             textbox.handleEvent(e);
             darkModeToggle.handleEvent(e);
-            for (int i = 0; i < nContacts; ++i) {
-                contactButtons[i].handleEvent(e);
+
+            if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                int mx = e.button.x;
+                int my = e.button.y;
+                for (int i = 0; i < nContacts; ++i) {
+                    SDL_FRect &r = contactRects[i];
+                    if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+                        // Change this contact color randomly
+                        contactColors[i] = {Uint8(rand() % 256), Uint8(rand() % 256), Uint8(rand() % 256), 255};
+                        textbox.clear();
+                        break;
+                    }
+                }
             }
         }
 
@@ -106,9 +113,9 @@ int main(int argc, char** argv) {
         renderer.setDrawColor(leftR - 20, leftG - 20, leftB - 20, 255);
         SDL_RenderRect(native, &leftPanel);
 
-        // Contact rectangles and buttons
+        // Contacts
         float contactW = leftPanel.w * 0.9f;
-        float contactH = leftPanel.h * 0.12f;
+        float contactH = leftPanel.h * 0.08f;
         float spacing = (leftPanel.h - nContacts * contactH) / (nContacts + 1);
         for (int i = 0; i < nContacts; ++i) {
             SDL_FRect contact = {
@@ -117,39 +124,22 @@ int main(int argc, char** argv) {
                 contactW,
                 contactH
             };
-            renderer.setDrawColor(darkMode ? 80 : 230, darkMode ? 80 : 230, darkMode ? 80 : 230, 255);
+            SDL_Color c = contactColors[i];
+            renderer.setDrawColor(c.r, c.g, c.b, c.a);
             SDL_RenderFillRect(native, &contact);
-            renderer.setDrawColor(darkMode ? 50 : 180, darkMode ? 50 : 180, darkMode ? 50 : 180, 255);
+            renderer.setDrawColor(c.r - 50, c.g - 50, c.b - 50, 255);
             SDL_RenderRect(native, &contact);
-
-            // Configure button inside contact
-            Button& btn = contactButtons[i];
-            btn.setPosition(contact.x + 10, contact.y + 10);
-            btn.setSize(contact.w - 20, contact.h - 20);
-
-            // Each button changes right panel color
-            btn.onClick = [&, i]() {
-                switch(i) {
-                    case 0: panelR = 200; panelG = 100; panelB = 150; break;
-                    case 1: panelR = 50; panelG = 200; panelB = 100; break;
-                    case 2: panelR = 100; panelG = 150; panelB = 220; break;
-                    case 3: panelR = 220; panelG = 200; panelB = 50; break;
-                    case 4: panelR = 180; panelG = 120; panelB = 240; break;
-                }
-            };
-
-            sideRects[i] = contact;
-            btn.draw(renderer);
+            contactRects[i] = contact;
         }
 
         // Right panel
         SDL_FRect rightPanel = { windowWidth * 0.35f, windowHeight * 0.05f, windowWidth * 0.6f, windowHeight * 0.9f };
-        renderer.setDrawColor(panelR, panelG, panelB, 255);
+        renderer.setDrawColor(darkMode ? 60 : 180, darkMode ? 60 : 220, darkMode ? 60 : 190, 255);
         SDL_RenderFillRect(native, &rightPanel);
-        renderer.setDrawColor(panelR - 20, panelG - 20, panelB - 20, 255);
+        renderer.setDrawColor(darkMode ? 40 : 150, darkMode ? 40 : 200, darkMode ? 40 : 200, 255);
         SDL_RenderRect(native, &rightPanel);
 
-        // Draw textbox at bottom center of right panel
+        // Textbox
         textbox.draw(renderer);
 
         // Dark mode toggle
