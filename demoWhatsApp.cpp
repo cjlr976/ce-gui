@@ -77,6 +77,7 @@ int main(int argc, char** argv) {
     TTF_Font* font = TTF_OpenFont("Roboto_SemiCondensed-Black.ttf", 20);
     if (!font) std::cerr << "Failed to load font" << std::endl;
 
+    // Textbox widget
     TextBox textbox(&renderer, font);
     auto computeTextboxPosition = [&]() {
         int tbW = static_cast<int>(windowWidth * 0.4f);
@@ -87,6 +88,7 @@ int main(int argc, char** argv) {
     };
     computeTextboxPosition();
 
+    // Dark mode toggle
     ToggleSwitch darkModeToggle;
     darkModeToggle.setPosition(windowWidth - 80, 20);
     darkModeToggle.setSize(60, 30);
@@ -99,9 +101,12 @@ int main(int argc, char** argv) {
     SDL_Event e;
 
     const int nContacts = 10;
-    SDL_FRect contactRects[nContacts];
-    SDL_Color contactColors[nContacts];
-    for (int i = 0; i < nContacts; ++i) contactColors[i] = {230, 230, 230, 255};
+    SDL_FRect contactRects[nContacts]; // contact rectangles
+    SDL_Color contactColors[nContacts]; // current color of each contact
+
+    // Initialize contact colors
+    for (int i = 0; i < nContacts; ++i) { 
+        contactColors[i] = {230, 230, 230, 255}; }
 
     while (running) {
         while (SDL_PollEvent(&e)) {
@@ -123,6 +128,7 @@ int main(int argc, char** argv) {
                 for (int i = 0; i < nContacts; ++i) {
                     SDL_FRect &r = contactRects[i];
                     if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+                        // Change this contact color randomly
                         contactColors[i] = {Uint8(rand() % 256), Uint8(rand() % 256), Uint8(rand() % 256), 255};
                         textbox.clear();
                         break;
@@ -131,7 +137,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        // Background
+        // Background depending on dark mode
         SDL_Color bgColor = darkMode ? SDL_Color{40, 40, 40, 255} : SDL_Color{255, 255, 255, 255}; // white background
         renderer.setDrawColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         renderer.clear();
@@ -163,8 +169,10 @@ int main(int argc, char** argv) {
         SDL_Color rightColor = darkMode ? SDL_Color{60,60,60,255} : SDL_Color{180,220,190,255};
         fillRoundedRect(native, rightPanel, 15.0f, rightColor);
 
-        // Textbox and toggle
+        // Textbox 
         textbox.draw(renderer);
+
+        // Dark mode toggle
         darkModeToggle.draw(renderer);
 
         renderer.present();
