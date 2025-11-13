@@ -1,0 +1,57 @@
+Object Structure
+  ( ) Data Struct
+  ( ) Components
+  ( ) Children
+  ( ) Events
+
+Hirarchy system
+  ( ) Ownorship table
+  ( ) Serializable table
+
+Component System
+  ( ) Update system
+  ( ) Component Factory
+
+Event System
+  ( ) 
+  ( )
+
+Data-Oriented Widget
+  ( ) Widget Factory
+  ( ) Serializing data
+  ( ) Structuring data - Vectors
+  ( ) Connecting to Declarative Language
+  
+Declarative List
+  ( ) Creating Widgets
+  ( ) Adding Widget Data
+  ( ) Naming Widgets
+  ( ) Event Callbacks
+  
+
+---------------------------
+
+Agile Requirements
+  1. As a developer, I want the framework to deal with factory instantiation
+  2. As a GUI developer, I want not to have to know all of a widgets properties
+  3. As a GUI developer, I want to have quick ways to implement binds and callbacks
+  4. As a Mobile Developer, I want a clear GUI Thread 
+  5. As a developer, I want to complications with the event system
+  6. As a developer, I want want simple deletion system
+  7. As a developer, I want to create widgets without complications
+  8. As a System Developer, I want to be able to widgets out of existing tools
+  9. As a serialization tool, I want all data to be representable without pointers
+  10. As a Game developer, I want to allow external events
+  11. As a Game developer, I want easy integration to SDL3 games, no boilerplate
+  12. As an LLM, I want clear separation between Declarative UI and function implementation
+
+Agile Specifications
+  ...
+
+----------------------------
+
+Timeline
+  ( ) Week 1 -> Implement Core Widget
+  ( ) Week 2 -> Implement Core Components
+  ( ) Week 3 -> Implement Core Layouts
+  ( ) Week 4 -> First App Development

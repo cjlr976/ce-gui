@@ -1,0 +1,8 @@
+g++ demoWidgets.cpp renderer.cpp widget.cpp textbox.cpp button.cpp label.cpp slider.cpp toggle.cpp layout.cpp -I"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/include" -L"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/lib" -lSDL3 -lSDL3_ttf -lSDL3_image -o WidgetDemo.exe
+
+g++ demoTextBox.cpp renderer.cpp widget.cpp textbox.cpp button.cpp label.cpp slider.cpp toggle.cpp layout.cpp -I"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/include" -L"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/lib" -lSDL3 -lSDL3_ttf -lSDL3_image -o TextDemo.exe
+
+g++ demoWhatsApp.cpp renderer.cpp widget.cpp textbox.cpp button.cpp label.cpp slider.cpp toggle.cpp layout.cpp -I"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/include" -L"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/lib" -lSDL3 -lSDL3_ttf -lSDL3_image -o WhatsAppDemo.exe
+
+g++ demoTest.cpp -I"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/include" -L"C:/Users/chloe/OneDrive - University of South Florida/Projects/SDL3-3.2.24/x86_64-w64-mingw32/lib" -lSDL3 -lSDL3_ttf -lSDL3_image -std=c++17 -Wall -Wextra -O2 -o Test.exe
+
